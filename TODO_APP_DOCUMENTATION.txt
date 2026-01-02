@@ -1,0 +1,383 @@
+================================================================================
+                    TO-DO LIST APPLICATION - DOCUMENTATION
+                           (Condensed Version)
+================================================================================
+
+Version: 1.0 | December 2025
+
+================================================================================
+OVERVIEW
+================================================================================
+
+A full-stack PHP web application for task management.
+
+FEATURES: Add/edit/delete tasks • Categorize & prioritize • Dark mode toggle
+          Sort by date/priority • Form confirmations
+
+================================================================================
+1. DATABASE
+================================================================================
+
+Database: todo | Table: tasks
+
+COLUMNS:
+  id → Auto-increment key
+  task → Task description
+  category → General, School, Work, Personal
+  priority → Low, Medium, High
+  status → 0=incomplete, 1=complete
+
+SUMMARY: Stores task data with timestamps for creation and updates.
+
+CONNECTION (db.php):
+  Host: localhost | User: root | DB: todo | Charset: utf8mb4
+
+================================================================================
+2. DESIGN & THEMING (Light & Dark Mode)
+================================================================================
+
+CSS VARIABLES (style.css):
+
+:root {
+    --bg-main: #f8f9fa;
+    --bg-card: #ffffff;
+    --text-primary: #1a1a1a;
+}
+
+body.dark-mode {
+    --bg-main: #0d1117;
+    --bg-card: #161b22;
+    --text-primary: #e6edf3;
+}
+
+SUMMARY: All colors defined as variables. Adding 'dark-mode' class to body
+automatically switches all colors. No layout changes, just color updates.
+
+================================================================================
+3. DARK MODE TOGGLE
+================================================================================
+
+HTML (index.php):
+  <button class="theme-toggle">🌙 Dark Mode</button>
+
+JAVASCRIPT (script.js):
+  document.addEventListener('DOMContentLoaded', () => {
+      const isDarkMode = localStorage.getItem('darkMode') === 'true';
+      if (isDarkMode) {
+          document.body.classList.add('dark-mode');
+      }
+      themeBtn.addEventListener('click', () => {
+          document.body.classList.toggle('dark-mode');
+          localStorage.setItem('darkMode', isNowDark);
+      });
+  });
+
+SUMMARY: 
+  • Saves user preference to browser localStorage
+  • Persists across page reloads
+  • Clicking toggles 'dark-mode' class on body
+  • CSS automatically switches all theme colors
+  • Button text changes: "🌙 Dark Mode" ↔ "☀️ Light Mode"
+
+[Screenshot: Light mode with toggle button]
+[Screenshot: Dark mode with toggle button]
+
+================================================================================
+4. TASK INPUT FORM
+================================================================================
+
+HTML (index.php):
+  <form action="add.php" method="POST" class="add-form" onsubmit="return confirmAdd();">
+      <input type="text" name="task" placeholder="Task description" required>
+      <select name="category">
+          <option value="General">General</option>
+          <option value="School">School</option>
+          <option value="Work">Work</option>
+          <option value="Personal">Personal</option>
+      </select>
+      <select name="priority">
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+      </select>
+      <button type="submit">Add</button>
+  </form>
+
+BACKEND (add.php):
+  $task = $_POST['task'];
+  $category = $_POST['category'];
+  $priority = $_POST['priority'];
+  $conn->query("INSERT INTO tasks (task, category, priority) VALUES (...)");
+
+CONFIRMATION (script.js):
+  function confirmAdd() {
+      return confirm('Add this task to your to-do list?');
+  }
+
+SUMMARY: Form collects task, category, and priority. Shows confirmation dialog.
+Sends to add.php which inserts into database and redirects back.
+
+[Screenshot: Task input form]
+
+================================================================================
+5. TASK BADGES (Category & Priority)
+================================================================================
+
+CATEGORY BADGE - BLUE (style.css):
+  .cat {
+      background: #0066ff;
+      color: white;
+      font-weight: 700;
+      text-transform: uppercase;
+  }
+
+PRIORITY BADGES - COLOR-CODED (style.css):
+  .priority-badge.low { background: #10b981; }      /* Green */
+  .priority-badge.medium { background: #f59e0b; }   /* Orange */
+  .priority-badge.high { background: #ef4444; }     /* Red */
+
+HTML (index.php):
+  <small class="cat"><?php echo $row['category']; ?></small>
+  <small class="priority-badge <?php echo strtolower($row['priority']); ?>">
+      <?php echo $row['priority']; ?>
+  </small>
+
+SUMMARY: Category shows as blue badge. Priority shows as color-coded badge
+(green=low, orange=medium, red=high). Bold, uppercase, easy to scan.
+
+[Screenshot: Task list showing category and priority badges]
+
+================================================================================
+6. ACTION BUTTONS (Check, Edit, Delete)
+================================================================================
+
+HTML (index.php):
+  <div class="actions">
+      <a href="mark.php?id=<?php echo $row['id']; ?>">✔</a>
+      <a href="edit.php?id=<?php echo $row['id']; ?>">✏</a>
+      <a href="delete.php?id=<?php echo $row['id']; ?>" onclick="return confirmDelete();">🗑</a>
+  </div>
+
+BUTTON COLORS:
+  • Check (✔):  Blue (#0066ff) → filled blue on hover
+  • Edit (✏):   Orange (#f59e0b) → filled orange on hover
+  • Delete (🗑): Red (#ef4444) → filled red on hover
+
+STYLING (style.css):
+  .actions a {
+      padding: 8px 12px;
+      border: 1px solid;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+  }
+  .actions a:hover {
+      transform: scale(1.2);
+      color: white;
+  }
+
+CHECK BUTTON (mark.php):
+  $conn->query("UPDATE tasks SET status = NOT status WHERE id=$id");
+  EFFECT: Toggles completion. Completed tasks show strikethrough + 50% opacity.
+
+EDIT BUTTON (edit.php + update.php):
+  Loads form with current task values. Updates database on submission.
+  CONFIRMATION: "Save changes to this task?"
+
+DELETE BUTTON (delete.php):
+  $conn->query("DELETE FROM tasks WHERE id = $id");
+  CONFIRMATION: "Are you sure you want to delete this task?"
+
+CONFIRMATIONS (script.js):
+  function confirmAdd() { return confirm('Add this task to your to-do list?'); }
+  function confirmEdit() { return confirm('Save changes to this task?'); }
+  function confirmDelete() { return confirm('Are you sure you want to delete this task?'); }
+
+SUMMARY: Three colored action buttons. Hover effect scales and fills with color.
+Confirmations prevent accidental actions.
+
+[Screenshot: Action buttons in normal state]
+[Screenshot: Action buttons on hover]
+
+================================================================================
+7. SORTING
+================================================================================
+
+HTML (index.php):
+  <div class="sort">
+      <a href="index.php">Default</a>
+      <a href="index.php?sort=priority">Sort by Priority</a>
+  </div>
+
+BACKEND LOGIC (index.php):
+  $sort = isset($_GET['sort']) ? $_GET['sort'] : 'default';
+
+  if ($sort == 'priority') {
+      $result = $conn->query("SELECT * FROM tasks ORDER BY 
+          CASE 
+              WHEN priority='High' THEN 1
+              WHEN priority='Medium' THEN 2
+              WHEN priority='Low' THEN 3
+          END, id DESC");
+  } else {
+      $result = $conn->query("SELECT * FROM tasks ORDER BY id DESC");
+  }
+
+SORT MODES:
+  • Default: ORDER BY id DESC → Newest tasks first
+  • Priority: Custom CASE statement → High→Medium→Low (newest within each)
+
+SUMMARY: Two links. Clicking adds ?sort=priority to URL. PHP reads parameter
+and changes SQL query. No page reload.
+
+[Screenshot: Sort links at top]
+[Screenshot: Tasks sorted by date]
+[Screenshot: Tasks sorted by priority]
+
+================================================================================
+8. SETUP & INSTALLATION
+================================================================================
+
+FILE STRUCTURE:
+  todo_app/
+  ├── index.php (main page)
+  ├── add.php (add handler)
+  ├── edit.php (edit form)
+  ├── update.php (update handler)
+  ├── delete.php (delete handler)
+  ├── mark.php (mark complete/incomplete)
+  ├── db.php (database connection)
+  ├── style.css (styling)
+  └── script.js (dark mode + confirmations)
+
+================================================================================
+8. SETUP & INSTALLATION
+================================================================================
+
+FILE STRUCTURE:
+  todo_app/
+  ├── index.php (main page)
+  ├── add.php (add handler)
+  ├── edit.php (edit form)
+  ├── update.php (update handler)
+  ├── delete.php (delete handler)
+  ├── mark.php (mark complete/incomplete)
+  ├── db.php (database connection)
+  ├── style.css (styling)
+  └── script.js (dark mode + confirmations)
+
+INSTALLATION:
+  1. Run create_todo.sql to create database & table
+  2. Place all files in: C:\xampp\htdocs\todo_app\
+  3. Start Apache & MySQL in XAMPP
+  4. Open: http://localhost/todo_app/
+
+DATABASE CONNECTION (db.php):
+  $host = 'localhost'
+  $user = 'root'
+  $pass = ''
+  $dbname = 'todo'
+
+================================================================================
+9. TECHNOLOGY SUMMARY
+================================================================================
+
+BACKEND:
+  • PHP 7.4+ (Server-side logic, database queries)
+  • MySQL 5.7+ (Data storage)
+
+FRONTEND:
+  • HTML5 (Structure)
+  • CSS3 (Styling with custom properties)
+  • Vanilla JavaScript (No frameworks)
+
+KEY FEATURES:
+  • CSS variables for theming
+  • localStorage for dark mode persistence
+  • Confirmation dialogs for user actions
+  • Color-coded badges and buttons
+  • Responsive design with Flexbox
+  • UTF-8 encoding throughout
+
+================================================================================
+10. QUICK REFERENCE
+================================================================================
+
+DARK MODE:
+  File: script.js
+  Storage: localStorage (key: 'darkMode')
+  Toggle: Clicking .theme-toggle button
+
+FORM SUBMISSION:
+  Add:    index.php → add.php (confirmAdd)
+  Edit:   index.php → edit.php → update.php (confirmEdit)
+  Delete: index.php → delete.php (confirmDelete)
+
+BUTTON COLORS:
+  Check:  Blue (#0066ff)
+  Edit:   Orange (#f59e0b)
+  Delete: Red (#ef4444)
+
+PRIORITY COLORS:
+  Low:    Green (#10b981)
+  Medium: Orange (#f59e0b)
+  High:   Red (#ef4444)
+
+================================================================================
+
+Version: 1.0 | December 2025 | Full-Stack To-Do App
+
+================================================================================ 
+
+================================================================================
+10. TROUBLESHOOTING
+================================================================================
+
+ISSUE: "No database selected" error
+SOLUTION: 
+  - Run create_todo.sql to create the database
+  - Ensure MySQL is running in XAMPP
+  - Check db.php connection details match your setup
+
+ISSUE: Dark mode not toggling
+SOLUTION:
+  - Clear browser cache (Ctrl+Shift+R for hard refresh)
+  - Check browser console for JavaScript errors (F12)
+  - Ensure script.js is loaded (check Network tab in DevTools)
+
+ISSUE: Buttons not visible or styled incorrectly
+SOLUTION:
+  - Hard refresh browser (Ctrl+Shift+R)
+  - Clear browser cache
+  - Check style.css is loaded (Network tab)
+  - Verify no conflicting CSS
+
+ISSUE: Tasks not saving to database
+SOLUTION:
+  - Verify MySQL is running
+  - Check database connection in db.php
+  - Verify create_todo.sql was executed
+  - Check for SQL errors in browser console
+
+ISSUE: Forms not submitting
+SOLUTION:
+  - Check confirmation dialogs are accepting (not canceling)
+  - Verify form action attributes point to correct files
+  - Check PHP error logs
+
+ISSUE: Styling looks wrong in dark mode
+SOLUTION:
+  - Verify CSS variables are defined in style.css
+  - Check that 'dark-mode' class is being added to body
+  - Hard refresh to clear cached CSS
+
+================================================================================
+
+END OF DOCUMENTATION
+
+For questions about specific features, refer to the appropriate section above.
+Each section includes the relevant code, file names, and technical details.
+
+Version: 1.0
+Last Updated: December 2025
+
+================================================================================
