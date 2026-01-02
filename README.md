@@ -1,17 +1,14 @@
 # 📝 To-Do Application
 
-A lightweight to-do list web application built with **PHP** and **MySQL**, designed to explore **data-driven task prioritization** and explainable, AI-inspired decision logic.
+A lightweight to-do list web application built with **PHP** and **MySQL**, created to explore **data-driven task ordering** and explainable, AI-inspired decision logic in a practical setting.
 
 ---
 
 ## 🚀 Overview
 
-This project goes beyond basic CRUD functionality by introducing **Smart Task Prioritization** — a behavior-aware sorting mechanism that ranks tasks using multiple signals instead of a single rule.
+This project extends a traditional CRUD-based to-do list by introducing **Smart Task Prioritization** — a sorting mechanism that evaluates tasks using multiple signals instead of relying on a single field.
 
-The focus is on:
-- Clear decision logic
-- Explainability
-- A clean foundation for future machine learning features
+Rather than filtering tasks, the system **ranks all tasks by relevance**, demonstrating how intelligent behavior can emerge from structured data and clear decision rules.
 
 ---
 
@@ -20,39 +17,52 @@ The focus is on:
 - Create, edit, and delete tasks  
 - Assign categories and priority levels  
 - Mark tasks as completed  
-- Multiple sorting options:
-  - Default order
-  - Priority-based order
-  - **Smart Order (AI-inspired)**
+- Three task ordering modes:
+  - **Default View** (latest-first)
+  - **Priority-Based Sorting**
+  - **Smart Order** (multi-signal ranking)
 
 ---
 
-## 🧠 Smart Task Prioritization
+## 🧠 Smart Task Prioritization (What Was Implemented)
 
-The **Smart Order** feature ranks tasks using a heuristic-based scoring system.
+The **Smart Order** feature introduces a relevance-based ranking system.
 
-Each task is evaluated using:
-- Priority level (High, Medium, Low)
-- Task category (e.g., Work, School)
-- Task age
+Instead of showing tasks in a fixed or single-field order, each task is assigned a **score** computed from:
 
-Tasks are then ordered by a computed relevance score rather than a single attribute.
+- Task priority (High, Medium, Low)
+- Task category relevance (e.g., Work, School)
+- Task age (older tasks receive a higher weight)
 
-> This approach was intentionally designed as a foundation for future machine learning–based task completion prediction, while remaining fully explainable.
+Tasks are then displayed in descending order of this computed score.
+
+This approach allows:
+- Partial matches to compete fairly
+- Graceful handling of conflicting priorities
+- Transparent and explainable ranking logic
+
+> The system is intentionally heuristic-based and designed as a stepping stone toward future machine learning–based task completion prediction.
 
 ---
 
 ## 📸 Screenshots
 
 ### Default Task View
-Shows the standard task list without intelligent ranking.
+Tasks displayed in their original order (no ranking logic applied).
 
 ![Default Task View](screenshots/default-view.png)
 
 ---
 
+### Priority-Based Sorting
+Tasks ordered strictly by priority level.
+
+![Priority-Based Sorting](screenshots/normal-sort.png)
+
+---
+
 ### Smart Task Sorting
-Tasks ranked using behavior-aware scoring.
+Tasks ranked using multi-signal relevance scoring.
 
 ![Smart Task Sorting](screenshots/smart-order.png)
 
@@ -64,30 +74,30 @@ Tasks ranked using behavior-aware scoring.
 2. Create a MySQL database named `todo`  
 3. Import `sql/schema.sql` to create the required tables  
 4. Configure the database connection in `db.php`  
-5. Run the project on a local server (e.g., XAMPP)
+5. Run the application using a local server (e.g., XAMPP)
 
 ---
 
 ## 🧪 Usage
 
 - Add tasks with descriptions, categories, and priorities  
-- Switch between sorting modes using the interface  
+- Switch between **Default**, **Priority**, and **Smart Order** views  
 - Update, complete, or delete tasks as needed  
 
 ---
 
 ## 🔮 Future Improvements
 
-- Machine learning–based task completion prediction  
-- Task duration estimation  
-- Personalized prioritization based on user behavior  
+- Predictive task completion modeling
+- Task duration estimation
+- Personalized prioritization based on historical user behavior
 
 ---
 
 ## 📌 Notes
 
-This project intentionally avoids black-box automation.  
-The goal is to demonstrate **how intelligent behavior emerges from structured data and clear decision logic**, not to over-engineer solutions.
+This project avoids black-box automation.  
+The goal is to demonstrate **how intelligent ranking emerges from structured data, weighted signals, and transparent logic**, rather than relying on opaque AI systems.
 
 ---
 
@@ -105,4 +115,5 @@ The goal is to demonstrate **how intelligent behavior emerges from structured da
 │   └── schema.sql
 └── screenshots/
     ├── default-view.png
+    ├── normal-sort.png
     └── smart-order.png
