@@ -72,7 +72,7 @@ Tasks ranked using multi-signal relevance scoring.
 
 1. Clone the repository  
 2. Create a MySQL database named `todo`  
-3. Import `sql/schema.sql` to create the required tables  
+3. Import `sql/schema.sql` to create the required tables
 4. Configure the database connection in `db.php`  
 5. Run the application using a local server (e.g., XAMPP)
 
