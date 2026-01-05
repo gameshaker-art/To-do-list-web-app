@@ -24,6 +24,7 @@ Rather than filtering tasks, the system **ranks all tasks by relevance**, demons
 
 ---
 
+
 ## 🧠 Smart Task Prioritization (What Was Implemented)
 
 The **Smart Order** feature introduces a relevance-based ranking system.
